@@ -11,7 +11,7 @@ var mime = require('./src/mime.js');
 var port = 8002;
 var public_dir = path.join(__dirname, 'public');
 
-var db = new sqlite3.Database('.src/imdb.sqlite3, sqlite3.OPEN_READWRITE, (err) => {
+var db = new sqlite3.Database('.src/imdb.sqlite3', sqlite3.OPEN_READWRITE, (err) => {
 	if(err) {
 		console.log(err.message);
 		}//if err
