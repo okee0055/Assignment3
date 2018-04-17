@@ -15,6 +15,6 @@
     "mime-types": "latest",
     "multiparty": "latest",
     "sqlite3":  "3.1.x",
-    'express": "latest"
+    "express": "latest"
   }
 }
