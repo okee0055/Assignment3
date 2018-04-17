@@ -1,0 +1,18 @@
+{
+  "name": "node-webserver",
+  "version": "0.0.0",
+  "description": "Project 3 Webserver",
+  "author": {
+    "name": "Kelsey Faulise and Oliver Okeefe",
+    "email": "faul7249@stthomas.edu and okee0055@stthomas.edu"
+  },
+  "main": "server.js",
+  "respository": {
+    "type": "git",
+    "url": "https://github.com/okee0055/okee0055.github.io/tree/master/Assignment3"
+  },
+  "dependencies": {
+    "mime-types": "latest",
+    "multiparty": "latest"
+  }
+}
