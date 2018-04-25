@@ -1,73 +1,102 @@
-var path = require('path');
+
+//modules, these are pre-installed, but node has many more, more tha other languages
+var fs =  require('fs'); //allow access to file system
+var path = require('path'); //
 var http = require('http');
-var fs = require('fs');
 var url = require('url');
-var sqlite3 = require('sqlite3').verbose();
-
-var multiparty = require('multiparty');
-
 var mime = require('./src/mime.js');
+var express = require('express');
+var app = express();
+var sqlite3 = require('sqlite3').verbose();
+var multiparty = require('multiparty');
+var bodyParser = require('body-parser');
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-var port = 8002;
+var port = 8014;
+//files we want to serv will be in this dir
 var public_dir = path.join(__dirname, 'public');
+var src_dir = path.join(__dirname, 'src');
 
-var db = new sqlite3.Database('.src/imdb.sqlite3', sqlite3.OPEN_READWRITE, (err) => {
+var db = new sqlite3.Database('src/imdb.sqlite3', sqlite3.OPEN_READWRITE, (err) => {
 	if(err) {
 		console.log(err.message);
-		}//if err
+	}
 		console.log('Connected to database');
 });
 
-db.serialize(() => {
-	db.each("SELECT * FROM TITLES WHERE primary_title like 'Zoolander%'", (err, row) => {
-	if(err) {
-		console.log(err.message);
-	}//if error
-	console.log(row);
-     });
+app.get('/', function(req, res){
+    req_url = url.parse(req.url);
+    fs.readFile(path.join(public_dir, 'index.html'), 'utf8', (err, data) => {
+        if(err){
+           console.log(err); 
+           res.writeHead(404, {'Content-Type' : 'text/plain'});
+           res.write('Could not find file');
+           res.end();
+        }
+        else{
+            var result = data.replace(/{{unique_string}}/g, 'Movie/TV Database');
+            res.writeHead(200, {'Content-Type' : 'text/html'});
+            res.write(result);
+            res.end();
+        }
+    });
+    //res.sendFile(path.join(public_dir, 'index.html'));
 });
-var server = http.createServer((req, res) => {
-    var req_url = url.parse(req.url);
-    var filename = req_url.pathname.substring(1);
+app.get('/index.html', (req, res)=>{
+    res.sendFile(path.join(public_dir, 'index.html'));
+});
+app.get('/title', (req, res)=>{
+    res.writeHead(200, {'Content-Type' : 'text/plain'});
+    res.write('TITLE');
+    res.end();
+});
+app.get('/name', (req, res)=>{
+    res.writeHead(200, {'Content-Type' : 'text/plain'});
+    res.write('NAMES');
+    res.end();
+});
 
-    if(filename === '') filename = 'index.html';
 
-    if(req.method === 'GET') {
-        fs.readFile(path.join(public_dir, filename), (err, data) => {
-            if(err)
-            {
-                res.writeHead(404, {'Content-Type': 'text/plain'});
-                res.write('Oh no! Couldn\'t find that page!');
-                res.end();
-            }
-            else{
-                var ext = path.extname(filename).substring(1);
-                console.log(' serving file ' + filename + ' (type = ' + mime.mime_types[ext] + ')');
-                console.log(' used mime module version: ' + mime.version);
-                res.writeHead(200, {'Content-Type': mime.mime_types[ext] || 'text/plain'});
-                res.write(data);
-                res.end();
-            }
+app.post('/query', function(req, res){
 
+    var column = '';
+    if(req.body.table === 'TITLES'){
+        column = 'primary_title';
+    }else if(req.body.table === 'NAMES'){
+        column = 'primary_name';
+    }
+    //var query = "SELECT * FROM " + req.body + " WHERE primary_title like \'%" + fields.condition + "%\';";
+
+    var table_info = {rows:[]};
+
+    db.serialize(() => {
+        var stmt = db.prepare("SELECT * FROM " + req.body.table + " WHERE " + column + " LIKE ? ");
+        var target = req.body.target.replace(/\*/g,"%");
+    	stmt.each(target, (err, row) => {
+    	    if(err) {
+        	    console.log(err.message);
+            }	
+                table_info.rows.push(row);
+    	        console.log(row);
+    	}, (err, count)=>{
+            //console.log(stmt);
+            //console.log("count: "+count);
+            stmt.finalize(()=>{res.end(JSON.stringify(table_info));});
         });
 
-    }
+    });
+    /*
+    var thing = {
+                    rows : [
+                        {'col_1' : 'hello', 'col_2' : 'there', 'col_3' : 'ONE'},
+                        {'col_1' : 'hello', 'col_2' : 'there', 'col_3' : 'TWO'},
+                        {'col_1' : 'hello', 'col_2' : 'there', 'col_3' : 'THREE'}
+                    ]
+                };
+    var json_thing = JSON.stringify(thing);
+    */
+});
 
-    else if(req.method === 'POST'){
-        if(filename === 'query'){
-            var form = new multiparty.Form();
-            form.parse(req, (err, fields, files) =>  {
-                console.log(fields);
-                res.writeHead(200, {'Content-Type': 'text/plain'});
-                res.write('Successfully subscribed!');
-                res.end();
-            });//formparse
-          }//subscribe
-        }//post request
-      });
-    console.log(' now listening at port ' + port);
+app.listen(port, ()=> console.log('ITS WORKING... on port: ' + port));
 
-    server.listen(port, '0.0.0.0');
-
-
-                                                  57,1          35%
