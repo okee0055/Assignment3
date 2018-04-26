@@ -100,13 +100,92 @@ app.get('/title', (req, res)=>{
             var top_bill_promise = new Promise((resolve, reject) => {
                 var top_bill_stmt = db.prepare("SELECT primary_name, primary_profession, birth_year, death_year, PRINCIPALS.nconst FROM NAMES INNER JOIN PRINCIPALS ON NAMES.nconst = PRINCIPALS.nconst WHERE tconst = ? ORDER BY ordering");
                 top_bill_stmt.all(req.query.tconst, (err, rows) => {
+									//console.log("Top Billed");
                     if(err){
                         console.log(err);
                         reject(err);
                     }else{
-                        top_bill_stmt.finalize();
-                        resolve(rows);
-                    }
+													console.log("Rows before directors/writers " + rows);
+													var topBilled_nconst = rows.map((e) => { return e.nconst;});
+													var director_promise = new Promise((resolve, reject) => {
+														var director_stmt = db.prepare("SELECT directors FROM CREW WHERE tconst = ?");
+														director_stmt.get(req.query.tconst, (err, row) => {
+															if(err) {
+																console.log(err);
+																reject(err);
+															} else {
+																resolve(row);
+
+															}
+														});
+
+													});//director promse
+
+													var writer_promise = new Promise((resolve, reject) => {
+														var writer_stmt = db.prepare("SELECT writers FROM CREW WHERE tconst = ?");
+														writer_stmt.get(req.query.tconst, (err, row) => {
+															if(err){
+																console.log(err);
+																reject(err);
+															} else {
+																resolve(row);
+															}
+														});
+
+													});//Writer promise
+
+												Promise.all([director_promise, writer_promise]).then((result) => {
+														top_bill_stmt.finalize();
+														console.log(result[0]);
+														console.log(result[1]);
+
+
+
+														if(result[1].writers != null) {
+															var writers = result[1].writers.split(',');
+														for(var i=0; i<writers.length; i++)
+														{
+															if(topBilled_nconst.indexOf(writers[i]) == -1)
+															{
+																var writerStatment = db.prepare("SELECT * FROM NAMES WHERE nconst = ?");
+																var result = writerStatment.get(writers[i], (err, result) => {
+																	if(err){
+																		console.log(err);
+																		reject(err);
+																	} else {
+																		rows.push(result);
+																	}
+																});
+															}
+														}//writer for loop
+													}
+
+													if(result[0].directors != null) {
+														var directors = result[0].directors.split(',');
+														for(var i=0; i<directors.length; i++)
+														{
+															if(topBilled_nconst.indexOf(directors[i]) == -1)
+															{
+																var writerStatment = db.prepare("SELECT * FROM NAMES WHERE nconst = ?");
+																var result = writerStatment.get(directors[i], (err, result) => {
+																	if(err){
+																		console.log(err);
+																		reject(err);
+																	} else {
+																		rows.push(result);
+																	}
+																});
+															}
+														}//director
+													}
+
+														resolve(rows);
+
+
+												}).catch((err) => {
+													console.log(err);
+												});//promsise .all
+                    }//else
                 });
             });
 
@@ -165,29 +244,36 @@ app.get('/name', (req, res)=>{
 					});//name_promise
 
 					var knowTitles_promise = new Promise((resolve, reject) => {
-						var finalResult =  [];
-						var known_objects = { titleObjs: []};
+						var knownPromise =[];
 						var known_stmt = db.prepare("SELECT known_for_titles FROM NAMES WHERE nconst = ?");
 						known_stmt.get(req.query.nconst, (err, row) => {
 							if(err){
 								console.log(err);
 								reject(err);
 							} else{
-                                known_stmt.finalize();
+                known_stmt.finalize();
 								var known_titles = String(row.known_for_titles).split(',');
-								console.log(known_titles);
 								for(var i=0; i<known_titles.length; i++)
 								{
-									var knownTitle_stmt = db.prepare("SELECT * FROM TITLES WHERE tconst = ?");
-									knownTitle_stmt.get(known_titles[i], (err, rows) => {
-										console.log("Getting Know Title Information: " + rows.tconst);
-										finalResult[i] = rows;
-									});//knownTitles_stmt
+										var title_promise = new Promise((resolve, reject) => {
+											var known_stmt = db.prepare("SELECT * FROM TITLES WHERE tconst = ?");
+											known_stmt.get(known_titles[i], (err, row) =>
+											{
+												resolve(row);
+											});
+										});
+										knownPromise.push(title_promise);
 								}
-								knownTitle_stmt.finalize();
-						
-                                console.log(finalResult);
-								resolve(finalResult);
+
+								Promise.all(knownPromise).then((results) =>
+								{
+									resolve(results);
+
+								}).catch((err) => {
+									reject(err);
+								});
+                //console.log(finalResult);
+							//	resolve(finalResult);
 							}//else
 						});//.get
 					});//promise
@@ -210,7 +296,9 @@ app.get('/name', (req, res)=>{
 					Promise.all([name_promise, prsnPoster_promise, knowTitles_promise ]).then((row) => {
 								console.log(row[0]);
 								console.log(row[1]);
-							  console.log("KnowTitles_Promise " + row[2]);
+							  console.log("KnowTitles_Promise: ");
+								for(var i=0; i<row[2].length; i++)
+									console.log(row[2][i]);
 
 								poster = 'https://'+row[1].host + row[1].path;
 
