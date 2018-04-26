@@ -29,8 +29,9 @@
     <h1 style="text-align:center;">***PERSON NAME***</h1>
     <div id="poster" style="float:left; display:inline;"><img src="***POSTER***" border="6" style="width:25em; height:auto; padding-top: 1em;padding-left: 1em;"></div>
     <div style="display:inline-block; margin-left:5em; margin-top:1em;">
-    <h4>***BRITH*** - ***DEATH***</h4>
-    <h4>***PROFESSIONS***</h4>
+    <h4>Birth Year: ***BRITH*** </h4>
+    <h4>Death Year: ***DEATH***</h4>
+    <h4>Professions: ***PROFESSIONS***</h4>
   </p>
   </div>
   </div>
@@ -63,8 +64,8 @@
         var app = angular.module('app', []);
         app.controller('ctrl', function($scope){
             rows = {rows:***ROWS***};
+            console.log(rows);
             for(var i=0;i<rows.rows.length;i++){
-                rows.rows[i].death_year = rows.rows[i].death_year || 'present';
                 rows.rows[i].url = 'http://cisc-dean.stthomas.edu:8014/name?tconst='+rows.rows[i].tconst;
             }
             $scope.rows = rows.rows;

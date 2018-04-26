@@ -7,9 +7,21 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
   </head>
   <body ng-app="app" ng-controller="app-ctrl">
-       <h1>Movie/TV Database</h1>
+       <h1 style="text-align: center">Movie/TV Database</h1>
+
+<!-- Search Bar -->
       <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-      <a class="navbar-brand" href="#">Search</a>
+        <div class="collapse navbar-collapse" id="navbarColor01">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://okee0055.github.io/Assignment3/public/about.html">About</a>
+            </li>
+          </ul>
+        </div>
+      <a class="navbar-brand" href="#">Search:</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -17,14 +29,14 @@
       <div class="collapse navbar-collapse" id="navbarColor01">
 
         <form class="form-inline my-2 my-lg-0" action="query" enctype="multipart/form-data" method="POST">
-          <input class="form-control mr-sm-2" type="text" placeholder="Search" ng-model="target">
-          <select required class="custom-select" ng-model="table">
+          <input class="form-control mr-sm-2" type="text" placeholder="Search" ng-model="target" style="width:20em;">
+          <select required class="custom-select" ng-model="table" style="width:10em;">
             <option selected hidden value="">Select</option>
             <option value="TITLES">Titles</option>
             <option value="NAMES">People</option>
           </select>
         </form>
-            <button class="btn btn-secondary my-2 my-sm-0" ng-click="on_submit()">Search</button>
+            <button class="btn btn-outline-info" ng-click="on_submit()" style="margin-left:1em;">Search</button>
       </div>
     </nav>
     <div class="jumbotron" style="color:#1a1a1a">
@@ -69,7 +81,7 @@
                                 row.col_4 = results[i].end_year;
                                 $scope.rows.push(row);
                            }else{
-                                var row = {}; 
+                                var row = {};
                                 row.url = 'http://cisc-dean.stthomas.edu:8014/name?nconst='+results[i].nconst;
                                 row.col_1 = results[i].primary_name;
                                 row.col_2 = results[i].birth_year;
@@ -83,11 +95,11 @@
                         $scope.data.col_2 = (body.table === 'TITLES') ? 'Type' : 'Birth Year';
                         $scope.data.col_3 = (body.table === 'TITLES') ? 'Release Year' : 'Death Year';
                         $scope.data.col_4 = (body.table === 'TITLES') ? 'End Year (tv-series only)' : 'Profession(s)';
-                        //console.log($scope.data);                
+                        //console.log($scope.data);
                     });
                 }else{
                     alert('Please fill in the input fields!! :)');
-                }   
+                }
             }
         });
     </script>

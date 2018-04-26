@@ -165,7 +165,7 @@ app.get('/name', (req, res)=>{
 					});//name_promise
 
 					var knowTitles_promise = new Promise((resolve, reject) => {
-						var finalResult = {newObs: []};
+						var finalResult =  [];
 						var known_objects = { titleObjs: []};
 						var known_stmt = db.prepare("SELECT known_for_titles FROM NAMES WHERE nconst = ?");
 						known_stmt.get(req.query.nconst, (err, row) => {
@@ -173,21 +173,23 @@ app.get('/name', (req, res)=>{
 								console.log(err);
 								reject(err);
 							} else{
+                                known_stmt.finalize();
 								var known_titles = String(row.known_for_titles).split(',');
 								console.log(known_titles);
 								for(var i=0; i<known_titles.length; i++)
 								{
 									var knownTitle_stmt = db.prepare("SELECT * FROM TITLES WHERE tconst = ?");
 									knownTitle_stmt.get(known_titles[i], (err, rows) => {
-										console.log(rows);
-										known_objects.titleObjs[i] = rows;
+										console.log("Getting Know Title Information: " + rows.tconst);
+										finalResult[i] = rows;
 									});//knownTitles_stmt
 								}
 								knownTitle_stmt.finalize();
-								known_stmt.finalize();
-								resolve(known_objects);
+						
+                                console.log(finalResult);
+								resolve(finalResult);
 							}//else
-						})//.get
+						});//.get
 					});//promise
 
 
@@ -208,7 +210,7 @@ app.get('/name', (req, res)=>{
 					Promise.all([name_promise, prsnPoster_promise, knowTitles_promise ]).then((row) => {
 								console.log(row[0]);
 								console.log(row[1]);
-							  console.log(row[2]);
+							  console.log("KnowTitles_Promise " + row[2]);
 
 								poster = 'https://'+row[1].host + row[1].path;
 
@@ -217,7 +219,7 @@ app.get('/name', (req, res)=>{
 								data = data.replace(/\*\*\*DEATH\*\*\*/g, row[0].death_year || 'present');
 								data = data.replace(/\*\*\*PROFESSIONS\*\*\*/g, row[0].primary_profession);
 								data = data.replace(/\*\*\*POSTER\*\*\*/g, poster);
-								//data = data.replace(/\*\*\*ROWS\*\*\*/g, JSON.stringify(row[1]));
+								data = data.replace(/\*\*\*ROWS\*\*\*/g, JSON.stringify(row[2]));
 
 								res.writeHead(200, {'Content-Type' : 'text/html'});
                 res.write(data);
