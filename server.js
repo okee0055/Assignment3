@@ -10,8 +10,11 @@ var app = express();
 var sqlite3 = require('sqlite3').verbose();
 var multiparty = require('multiparty');
 var bodyParser = require('body-parser');
+var poster = require('imdb_poster.js');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+console.log(poster);
 
 var port = 8014;
 //files we want to serv will be in this dir
@@ -31,7 +34,7 @@ app.get('/', function(req, res){
         if(err){
            console.log(err); 
            res.writeHead(404, {'Content-Type' : 'text/plain'});
-           res.write('Could not find file');
+           res.write('Could not find file / ');
            res.end();
         }
         else{
@@ -46,11 +49,97 @@ app.get('/', function(req, res){
 app.get('/index.html', (req, res)=>{
     res.sendFile(path.join(public_dir, 'index.html'));
 });
+
 app.get('/title', (req, res)=>{
-    res.writeHead(200, {'Content-Type' : 'text/plain'});
-    res.write('TITLE');
-    res.end();
-});
+    fs.readFile(path.join(public_dir, 'title.html'), 'utf8', (err, data) => {
+        if(err){
+           console.log(err); 
+           res.writeHead(404, {'Content-Type' : 'text/plain'});
+           res.write('Could not find file title');
+           res.end();
+        }
+        else{
+            var titles_promise = new Promise((resolve, reject) => {
+                var titles_stmt = db.prepare("SELECT * FROM TITLES WHERE tconst = ? ");
+                titles_stmt.get(req.query.tconst, (err, row) => {
+                    if(err) {
+                        console.log(err.message);
+                        reject(err);
+                    }else{
+                        titles_stmt.finalize();
+                        resolve(row);
+                    }
+                }); //titles_stmt.get
+            });
+            var ratings_promise = new Promise((resolve, reject) => {
+                var ratings_stmt = db.prepare("SELECT * FROM RATINGS WHERE tconst = ? ");
+                ratings_stmt.get(req.query.tconst, (err, row) => {
+                    if(err){
+                        console.log(err.message);
+                        reject(err);
+                    }else{
+                        ratings_stmt.finalize();
+                        resolve(row);
+                    }
+                }); //results_stmt.get
+            });
+            
+            var poster_promise = new Promise((resolve, reject) => {
+                poster = require('imdb_poster.js');
+                poster.GetPosterFromTitleId(req.query.tconst, (err, data) => {
+                    if(err) {
+                        console.log(err);
+                    }//if
+                    else {
+                        console.log(data);
+                        resolve(data);
+                    }//else
+                });//getPoster
+            });//poster_promise
+
+            var top_bill_promise = new Promise((resolve, reject) => {
+                var top_bill_stmt = db.prepare("SELECT primary_name, primary_profession, birth_year, death_year, PRINCIPALS.nconst FROM NAMES INNER JOIN PRINCIPALS ON NAMES.nconst = PRINCIPALS.nconst WHERE tconst = ? ORDER BY ordering");
+                top_bill_stmt.all(req.query.tconst, (err, rows) => {
+                    if(err){
+                        console.log(err);
+                        reject(err);
+                    }else{
+                        top_bill_stmt.finalize();
+                        resolve(rows);
+                    }
+                });
+            });
+
+            Promise.all([titles_promise, ratings_promise, poster_promise, top_bill_promise]).then((rows)=>{
+                console.log(rows[0]);
+                console.log(rows[1]);
+                console.log(rows[2]);
+                console.log(JSON.parse(JSON.stringify(rows[3])));
+                poster = 'https://'+rows[2].host + rows[2].path;
+
+                data = data.replace(/\*\*\*MOVIE TITLE\*\*\*/g, rows[0].primary_title);
+                data = data.replace(/\*\*\*TITLE TYPE\*\*\*/g, rows[0].title_type);
+                data = data.replace(/\*\*\*START\*\*\*/g, rows[0].start_year);
+                data = data.replace(/\*\*\*END\*\*\*/g, rows[0].end_year);
+                data = data.replace(/\*\*\*RUN TIME\*\*\*/g, rows[0].runtime_minutes);
+                data = data.replace(/\*\*\*GENRE\*\*\*/g, rows[0].genres);
+                data = data.replace(/\*\*\*AVERAGE RATE\*\*\*/g, rows[1].average_rating);
+                data = data.replace(/\*\*\*NUM VOTES\*\*\*/g, rows[1].num_votes);
+                data = data.replace(/\*\*\*POSTER\*\*\*/g, poster);
+                data = data.replace(/\*\*\*ROWS\*\*\*/g, JSON.stringify(rows[3])); 
+                console.log("\n\n"+data+"\n\n");
+                res.writeHead(200, {'Content-Type' : 'text/html'});       
+                res.write(data);
+                res.end();
+            }).catch((err) => {
+                console.log(err);
+            });
+
+
+        } //else
+    }); //fs.readFile
+}); //app.get on '/tite'
+
 app.get('/name', (req, res)=>{
     res.writeHead(200, {'Content-Type' : 'text/plain'});
     res.write('NAMES');
@@ -66,36 +155,24 @@ app.post('/query', function(req, res){
     }else if(req.body.table === 'NAMES'){
         column = 'primary_name';
     }
-    //var query = "SELECT * FROM " + req.body + " WHERE primary_title like \'%" + fields.condition + "%\';";
+    // var query = "SELECT * FROM " + req.body + " WHERE primary_title like \'%" + fields.condition + "%\';";
 
-    var table_info = {rows:[]};
+    // var table_info = {rows:[]};
 
     db.serialize(() => {
         var stmt = db.prepare("SELECT * FROM " + req.body.table + " WHERE " + column + " LIKE ? ");
         var target = req.body.target.replace(/\*/g,"%");
-    	stmt.each(target, (err, row) => {
+    	stmt.all(target, (err, rows) => {
     	    if(err) {
         	    console.log(err.message);
             }	
-                table_info.rows.push(row);
-    	        console.log(row);
-    	}, (err, count)=>{
-            //console.log(stmt);
-            //console.log("count: "+count);
-            stmt.finalize(()=>{res.end(JSON.stringify(table_info));});
+            //table_info.rows.push(row);
+    	    console.log(rows);
+            res.end(JSON.stringify(rows));
         });
+        stmt.finalize();
 
     });
-    /*
-    var thing = {
-                    rows : [
-                        {'col_1' : 'hello', 'col_2' : 'there', 'col_3' : 'ONE'},
-                        {'col_1' : 'hello', 'col_2' : 'there', 'col_3' : 'TWO'},
-                        {'col_1' : 'hello', 'col_2' : 'there', 'col_3' : 'THREE'}
-                    ]
-                };
-    var json_thing = JSON.stringify(thing);
-    */
 });
 
 app.listen(port, ()=> console.log('ITS WORKING... on port: ' + port));
