@@ -56,7 +56,7 @@
                 if(!(typeof $scope.target === 'undefined' || typeof $scope.table === 'undefined')){
                     var body = { 'target' : $scope.target, 'table' : $scope.table };
                     $http.post("query", body).then(function(res){
-                        var results = res.data.rows;
+                        var results = res.data;
                         //console.log(res);
                         $scope.rows = [];
                         for(var i=0;i<results.length;i++){
@@ -83,7 +83,7 @@
                         $scope.data.col_2 = (body.table === 'TITLES') ? 'Type' : 'Birth Year';
                         $scope.data.col_3 = (body.table === 'TITLES') ? 'Release Year' : 'Death Year';
                         $scope.data.col_4 = (body.table === 'TITLES') ? 'End Year (tv-series only)' : 'Profession(s)';
-                        console.log($scope.data);                
+                        //console.log($scope.data);                
                     });
                 }else{
                     alert('Please fill in the input fields!! :)');
