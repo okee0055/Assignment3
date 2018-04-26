@@ -3,6 +3,7 @@
   <head>
     <link rel="stylesheet" href="https://bootswatch.com/4/lux/bootstrap.min.css">
     <title>Movie/TV Project</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
   </head>
   <body>
     <h1 style="text-align:center; padding-top: .5em; padding-bottom:.25em;">Movie/TV Database</h1>
@@ -26,7 +27,7 @@
   <div id="movie-info" style="display:inline; position:relative;">
     <p>
     <h1 style="text-align:center;">***PERSON NAME***</h1>
-    <div id="poster" style="float:left; display:inline;"><img src="kelsey.jpg" border="6" style="width:25em; height:auto; padding-top: 1em;padding-left: 1em;"></div>
+    <div id="poster" style="float:left; display:inline;"><img src="***POSTER***" border="6" style="width:25em; height:auto; padding-top: 1em;padding-left: 1em;"></div>
     <div style="display:inline-block; margin-left:5em; margin-top:1em;">
     <h4>***BRITH*** - ***DEATH***</h4>
     <h4>***PROFESSIONS***</h4>
@@ -36,24 +37,48 @@
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
   <div id="top-billed" style="display:block; float:bottom; position:relative;">
     <h4>Titles Known For</h4>
-    <table class="table table-hover">
+    <table class="table table-hover" style="color:#1a1a1a">
   <thead>
     <tr>
-      <th scope="col">Type</th>
+      <th scope="col">Index</th>
       <th scope="col">Title</th>
-      <th scope="col">Year</th>
+      <th scope="col">Type</th>
+      <th scope="col">Star Year</th>
+      <th scope="col">End Year (Only TV)</th>
     </tr>
   </thead>
   <tbody>
-    <tr class="table-active">
-      <th scope="row">Active</th>
-      <td>***TITLE***</td>
-      <td>***YEAR***</td>
+    <tr class="table-active" ng-repeat="row in rows">
+        <th>{{ $index+1 }}</th>
+        <td><a ng-href="{{ row.url }}">{{ row.primary_title }}</a></td>
+        <td>{{ row.title_type }}</td>
+        <td>{{ row.start_year }}</td>
+        <td>{{ row.end_year }}</td>
     </tr>
   </tbody>
 </table>
 <br><br>
   </div>
+  <script>
+        var app = angular.module('app', []);
+        app.controller('ctrl', function($scope){
+            rows = {rows:***ROWS***};
+            for(var i=0;i<rows.rows.length;i++){
+                rows.rows[i].death_year = rows.rows[i].death_year || 'present';
+                rows.rows[i].url = 'http://cisc-dean.stthomas.edu:8014/name?tconst='+rows.rows[i].tconst;
+            }
+            $scope.rows = rows.rows;
+            console.log($scope.rows);
+            //console.log({rows:***ROWS***});
+            var js_obj = {rows:[1,2,3]};
+            var json_string = JSON.stringify(js_obj);
+            var json_to_js = JSON.parse(json_string);
+            console.log(js_obj);
+            console.log(json_string);
+            console.log(json_to_js);
+        });
+
+    </script>
 
   </body>
 

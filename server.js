@@ -4,7 +4,7 @@ var fs =  require('fs'); //allow access to file system
 var path = require('path'); //
 var http = require('http');
 var url = require('url');
-var mime = require('./src/mime.js');
+//var mime = require('./src/mime.js');
 var express = require('express');
 var app = express();
 var sqlite3 = require('sqlite3').verbose();
@@ -14,7 +14,7 @@ var poster = require('imdb_poster.js');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-console.log(poster);
+//console.log(poster);
 
 var port = 8014;
 //files we want to serv will be in this dir
@@ -32,7 +32,7 @@ app.get('/', function(req, res){
     req_url = url.parse(req.url);
     fs.readFile(path.join(public_dir, 'index.html'), 'utf8', (err, data) => {
         if(err){
-           console.log(err); 
+           console.log(err);
            res.writeHead(404, {'Content-Type' : 'text/plain'});
            res.write('Could not find file / ');
            res.end();
@@ -53,7 +53,7 @@ app.get('/index.html', (req, res)=>{
 app.get('/title', (req, res)=>{
     fs.readFile(path.join(public_dir, 'title.html'), 'utf8', (err, data) => {
         if(err){
-           console.log(err); 
+           console.log(err);
            res.writeHead(404, {'Content-Type' : 'text/plain'});
            res.write('Could not find file title');
            res.end();
@@ -83,7 +83,7 @@ app.get('/title', (req, res)=>{
                     }
                 }); //results_stmt.get
             });
-            
+
             var poster_promise = new Promise((resolve, reject) => {
                 poster = require('imdb_poster.js');
                 poster.GetPosterFromTitleId(req.query.tconst, (err, data) => {
@@ -111,10 +111,10 @@ app.get('/title', (req, res)=>{
             });
 
             Promise.all([titles_promise, ratings_promise, poster_promise, top_bill_promise]).then((rows)=>{
-                console.log(rows[0]);
-                console.log(rows[1]);
-                console.log(rows[2]);
-                console.log(JSON.parse(JSON.stringify(rows[3])));
+                //console.log(rows[0]);
+                //console.log(rows[1]);
+              //  console.log(rows[2]);
+              //  console.log(JSON.parse(JSON.stringify(rows[3])));
                 poster = 'https://'+rows[2].host + rows[2].path;
 
                 data = data.replace(/\*\*\*MOVIE TITLE\*\*\*/g, rows[0].primary_title);
@@ -126,9 +126,9 @@ app.get('/title', (req, res)=>{
                 data = data.replace(/\*\*\*AVERAGE RATE\*\*\*/g, rows[1].average_rating);
                 data = data.replace(/\*\*\*NUM VOTES\*\*\*/g, rows[1].num_votes);
                 data = data.replace(/\*\*\*POSTER\*\*\*/g, poster);
-                data = data.replace(/\*\*\*ROWS\*\*\*/g, JSON.stringify(rows[3])); 
-                console.log("\n\n"+data+"\n\n");
-                res.writeHead(200, {'Content-Type' : 'text/html'});       
+                data = data.replace(/\*\*\*ROWS\*\*\*/g, JSON.stringify(rows[3]));
+              //  console.log("\n\n"+data+"\n\n");
+                res.writeHead(200, {'Content-Type' : 'text/html'});
                 res.write(data);
                 res.end();
             }).catch((err) => {
@@ -141,10 +141,97 @@ app.get('/title', (req, res)=>{
 }); //app.get on '/tite'
 
 app.get('/name', (req, res)=>{
-    res.writeHead(200, {'Content-Type' : 'text/plain'});
-    res.write('NAMES');
-    res.end();
-});
+		fs.readFile(path.join(public_dir, 'name.html'), 'utf8', (err, data) => {
+
+			if(err) {
+				console.log(err);
+				res.writeHead(404, {'Content-Type': 'text/plain'});
+				res.write('Could not find file title');
+				res.end();
+			}//if(err)
+			else {
+					var name_promise = new Promise((resolve, reject) => {
+						var name_stmt = db.prepare("SELECT * FROM NAMES WHERE nconst = ?");
+						name_stmt.get(req.query.nconst, (err, row) => {
+							var finalResult = {newObs: []};
+							if(err) {
+								console.log(err.message);
+								reject(err);
+							} else {
+								name_stmt.finalize();
+									resolve(row);
+							}// else
+						});//stmt.get
+					});//name_promise
+
+					var knowTitles_promise = new Promise((resolve, reject) => {
+						var finalResult = {newObs: []};
+						var known_objects = { titleObjs: []};
+						var known_stmt = db.prepare("SELECT known_for_titles FROM NAMES WHERE nconst = ?");
+						known_stmt.get(req.query.nconst, (err, row) => {
+							if(err){
+								console.log(err);
+								reject(err);
+							} else{
+								var known_titles = String(row.known_for_titles).split(',');
+								console.log(known_titles);
+								for(var i=0; i<known_titles.length; i++)
+								{
+									var knownTitle_stmt = db.prepare("SELECT * FROM TITLES WHERE tconst = ?");
+									knownTitle_stmt.get(known_titles[i], (err, rows) => {
+										console.log(rows);
+										known_objects.titleObjs[i] = rows;
+									});//knownTitles_stmt
+								}
+								knownTitle_stmt.finalize();
+								known_stmt.finalize();
+								resolve(known_objects);
+							}//else
+						})//.get
+					});//promise
+
+
+					var prsnPoster_promise = new Promise((resolve, reject) => {
+						poster = require('imdb_poster.js');
+						poster.GetPosterFromNameId(req.query.nconst, (err, data) => {
+							if(err){
+								console.log(err);
+								reject(err);
+							}
+							else {
+								console.log(data);
+								resolve(data);
+							}
+						});//getPoster
+					});//promise
+
+					Promise.all([name_promise, prsnPoster_promise, knowTitles_promise ]).then((row) => {
+								console.log(row[0]);
+								console.log(row[1]);
+							  console.log(row[2]);
+
+								poster = 'https://'+row[1].host + row[1].path;
+
+								data = data.replace(/\*\*\*PERSON NAME\*\*\*/g, row[0].primary_name);
+								data = data.replace(/\*\*\*BRITH\*\*\*/g, row[0].birth_year);
+								data = data.replace(/\*\*\*DEATH\*\*\*/g, row[0].death_year || 'present');
+								data = data.replace(/\*\*\*PROFESSIONS\*\*\*/g, row[0].primary_profession);
+								data = data.replace(/\*\*\*POSTER\*\*\*/g, poster);
+								//data = data.replace(/\*\*\*ROWS\*\*\*/g, JSON.stringify(row[1]));
+
+								res.writeHead(200, {'Content-Type' : 'text/html'});
+                res.write(data);
+                res.end();
+
+					}).catch((err) => {
+						console.log(err);
+					});//Promise.all
+			}//else
+		}); //readFile
+    //res.writeHead(200, {'Content-Type' : 'text/plain'});
+  //  res.write('NAMES');
+    //res.end();
+});//app.get on 'name'
 
 
 app.post('/query', function(req, res){
@@ -165,7 +252,7 @@ app.post('/query', function(req, res){
     	stmt.all(target, (err, rows) => {
     	    if(err) {
         	    console.log(err.message);
-            }	
+            }
             //table_info.rows.push(row);
     	    console.log(rows);
             res.end(JSON.stringify(rows));
@@ -176,4 +263,3 @@ app.post('/query', function(req, res){
 });
 
 app.listen(port, ()=> console.log('ITS WORKING... on port: ' + port));
-
