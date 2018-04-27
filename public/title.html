@@ -18,10 +18,10 @@
 <div class="collapse navbar-collapse" id="navbarColor01">
  <ul class="navbar-nav mr-auto">
    <li class="nav-item active">
-     <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+     <a class="nav-link" href="http://cisc-dean.stthomas.edu:8002/">Home <span class="sr-only">(current)</span></a>
    </li>
    <li class="nav-item">
-     <a class="nav-link" href="#">About</a>
+     <a class="nav-link" href="http://cisc-dean.stthomas.edu:8002/about">About</a>
    </li>
  </ul>
  <button type="button" class="btn btn-outline-info" id="edit_btn">Edit</button>
@@ -70,7 +70,7 @@
             rows = {rows:***ROWS***};
             for(var i=0;i<rows.rows.length;i++){
                 rows.rows[i].death_year = rows.rows[i].death_year || 'present';
-                rows.rows[i].url = 'http://cisc-dean.stthomas.edu:8014/name?nconst='+rows.rows[i].nconst;
+                rows.rows[i].url = 'http://cisc-dean.stthomas.edu:8002/name?nconst='+rows.rows[i].nconst;
             }
             $scope.rows = rows.rows;
             console.log($scope.rows);

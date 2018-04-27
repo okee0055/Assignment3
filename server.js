@@ -50,6 +50,25 @@ app.get('/index.html', (req, res)=>{
     res.sendFile(path.join(public_dir, 'index.html'));
 });
 
+/*app.get('/about', function(req, res){
+    req_url = url.parse(req.url);
+    fs.readFile(path.join(public_dir, 'about.html'), 'utf8', (err, data) => {
+        if(err){
+           console.log(err);
+           res.writeHead(404, {'Content-Type' : 'text/plain'});
+           res.write('Could not find file / ');
+           res.end();
+        }
+        else{
+          //  var result = data.replace(/{{unique_string}}/g, 'Movie/TV Database');
+            res.writeHead(200, {'Content-Type' : 'text/html'});
+            res.write(result);
+            res.end();
+        }
+    });
+    //res.sendFile(path.join(public_dir, 'index.html'));
+});*/
+
 app.get('/title', (req, res)=>{
     fs.readFile(path.join(public_dir, 'title.html'), 'utf8', (err, data) => {
         if(err){
@@ -148,20 +167,20 @@ app.get('/title', (req, res)=>{
 															if(topBilled_nconst.indexOf(writers[i]) == -1)
 															{
 																var writerStatment = db.prepare("SELECT * FROM NAMES WHERE nconst = ?");
-																var result = writerStatment.get(writers[i], (err, result) => {
+																var writerResult = writerStatment.get(writers[i], (err, results) => {
 																	if(err){
 																		console.log(err);
 																		reject(err);
 																	} else {
-																		rows.push(result);
+																		rows.push(results);
 																	}
 																});
 															}
 														}//writer for loop
 													}
 
-                                                        console.log("DIRECTORS: \n\n");
-                                                        console.log(result[0]);
+                          console.log("DIRECTORS: \n\n");
+                          console.log(result[0]);
                                                         console.log("\n\n");
 													if(result[0].directors != null && typeof result[0] !== 'undefined') {
 														var directors = result[0].directors.split(',');
@@ -328,6 +347,16 @@ app.get('/name', (req, res)=>{
   //  res.write('NAMES');
     //res.end();
 });//app.get on 'name'
+
+
+app.post('/nameupdate', (req, res) => {
+	console.log("In update post!!!");
+	console.log(req);
+	console.log("Birth: " +req.body.birth);
+	console.log("Death: " + req.body.death);
+	console.log("Profession: " + req.body.prof);
+
+});//app.post(nameupdate)
 
 
 app.post('/query', function(req, res){
