@@ -4,6 +4,8 @@
     <link rel="stylesheet" href="https://bootswatch.com/4/lux/bootstrap.min.css">
     <title>Movie/TV Project</title>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   </head>
   <body ng-app="app" ng-controller="ctrl">
     <h1 style="text-align:center; padding-top: .5em; padding-bottom:.25em;">Movie/TV Database</h1>
@@ -22,21 +24,22 @@
      <a class="nav-link" href="#">About</a>
    </li>
  </ul>
-
-</nav>
-  <div id="movie-info" style="display:inline; position:relative;">
-    <p>
-    <h1 style="text-align:center;">***MOVIE TITLE***</h1>
-    <div id="poster" style="float:right;"><img src="***POSTER***" border="6" style="width:25em; height:auto; padding-top: 1em;padding-left: 1em;"></div>
-    <div style="display:inline-block; margin-left:5em; margin-top:1em;">
-    <h4>Type: ***TITLE TYPE***</h4>
-    <h4>Start Year: ***START*** </h4>
-    <h4>End Year: ***END***</h4>
-    <h4>Run Time: ***RUN TIME*** minutes</h4>
-    <h4>Genre: ***GENRE***<h4>
-    <h4>Rating: ***AVERAGE RATE***</h4><h4>Votes: ***NUM VOTES***</h4>
-  </p>
+ <button type="button" class="btn btn-outline-info" id="edit_btn">Edit</button>
   </div>
+</nav>
+  <div id="movie-info" style="display:inline; position:relative; display:flex; flex-direction:row; flex-wrap:wrap; justify-content:space-around; align-items:center; width=100%;">
+  <div>
+    <h1 style="margin:0 0 20px 0;">***MOVIE TITLE***</h1>
+    <div class="form-group">
+    <h4 id="type">Type: ***TITLE TYPE***</h4>
+    <h4 id="start">Start Year: ***START*** </h4>
+    <h4 id="end">End Year: ***END***</h4>
+    <h4 id="run_time">Run Time: ***RUN TIME*** minutes</h4>
+    <h4 id="genre">Genre: ***GENRE***<h4>
+    <h4 id="avg_rating">Rating: ***AVERAGE RATE***</h4><h4>Votes: ***NUM VOTES***</h4>
+    </div>
+  </div>
+    <div id="poster"><img src="***POSTER***" border="6" style="width:25em; height:auto; padding-top: 1em;padding-left: 1em;"></div>
   </div>
 <br><br><br><br><br><br><br><br><br>
   <div id="top-billed" style="display:block; float:bottom; position:relative;">
@@ -79,6 +82,28 @@
             console.log(json_string);
             console.log(json_to_js);
         });
+        var types = "<div class=\"btn-group btn-group-toggle\" data-toggle=\"buttons\">";
+        types += "<label class=\"btn btn-primary\">";
+        types += "<input type=\"radio\" checked=\"\" autocomplete=\"off\"> movie";
+        types += "</label>";
+        types += "<label class=\"btn btn-primary\">";
+        types += "<input type=\"radio\" autocomplete=\"off\"> tvshow";
+        types += "</label>";
+        types += "<label class=\"btn btn-primary\">";
+        types += "<input type=\"radio\" autocomplete=\"off\"> videogame";
+        types += "</label>";
+        types += "</div>";
+        //var types = "<input type=\"checkbox\" checked=";
+        //types += " there";
+        $(document).ready(function(){
+            $("#edit_btn").click(function(){
+                console.log('hey');
+                //$("#type").replaceWith("<input type=\"text\" class=\"form-control\" value=\"***TITLE TYPE***\">");
+                $("#type").replaceWith(types);
+                $("#genre").replaceWith("<input type=\"text\" class=\"form-control\" value=\"***GENRE***\">");
+            });
+        });
+
 
     </script>
   </body>
