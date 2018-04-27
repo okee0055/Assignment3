@@ -4,6 +4,8 @@
     <link rel="stylesheet" href="https://bootswatch.com/4/lux/bootstrap.min.css">
     <title>Movie/TV Project</title>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   </head>
   <body ng-app="app" ng-controller="ctrl">
     <h1 style="text-align:center; padding-top: .5em; padding-bottom:.25em;">Movie/TV Database</h1>
@@ -22,19 +24,34 @@
      <a class="nav-link" href="#">About</a>
    </li>
  </ul>
-
+ <button type="button" class="btn btn-outline-info" id="edit_btn">Edit</button>
+ <button type="button" class="btn btn-outline-info" id="save_btn">Save</button>
+</div>
 </nav>
-  <div id="movie-info" style="display:inline; position:relative;">
-    <p>
-    <h1 style="text-align:center;">***PERSON NAME***</h1>
-    <div id="poster" style="float:right;"><img src="***POSTER***" border="6" style="width:25em; height:auto; padding-top: 1em;padding-left: 1em;"></div>
-    <div style="display:inline-block; margin-left:5em; margin-top:1em;">
-    <h4>Birth Year: ***BRITH*** </h4>
-    <h4>Death Year: ***DEATH***</h4>
-    <h4>Professions: ***PROFESSIONS***</h4>
-  </p>
-  </div>
-  </div>
+<div id="movie-info" style="display:inline; position:relative; display:flex; flex-direction:row; flex-wrap:wrap; justify-content:space-around; align-items:center; width=100%;">
+<div>
+  <h1 style="margin:0 0 20px 0;">***PERSON NAME***</h1>
+  <div class="form-group">
+  <h4 id="birth">Birth Year: <div id="birthVal" style="display:inline;">***BIRTH***</div></h4>
+  <h4 id="death">Death Year: <div id="deathVal" style="display:inline">***DEATH***</div></h4>
+  <h4 id="prof"><div ="profOG" style="display:inline;">Professions: ***PROFESSIONS***</div>
+    <div id="profDrop" style="display:inline; visibility:hidden;">
+      <select>
+        <option value="producer">Producer</option>
+        <option value="actor">Actor</option>
+        <option value="actress">Actress</option>
+        <option value="director">Director</option>
+        <option value="writer">Writer</option>
+        <option value="casting">Casting</option>
+        <option value="composer">Composer</option>
+      </select>
+      <button type="button" class="btn btn-outline-info" id="addProf">Add</button>
+    </div>
+  </h4>
+
+</div>
+  <div id="poster"><img src="***POSTER***" border="6" style="width:25em; height:auto; padding-top: 1em;padding-left: 1em;"></div>
+</div>
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
   <div id="top-billed" style="display:block; float:bottom; position:relative;">
     <h4>Titles Known For</h4>
@@ -77,7 +94,34 @@
             console.log(json_string);
             console.log(json_to_js);
         });
-        console.log('after');
+        //console.log('after');
+        $(document).ready(() => {
+          //var originalProf;
+          $("#edit_btn").click(() => {
+            var originalProf = $("profOG").val();
+            console.log("Original Professions: " + originalProf)
+            $("#birthVal").replaceWith("<input id=\"tempBirth\" type=\"number\" class=\"form-control\" style=\"width:8em; display:inline;\" value=\"***BIRTH***\">");
+            $("#deathVal").replaceWith("<input id=\"tempDeath\" type=\"number\" class=\"form-control\" style=\"width:8em; display:inline;\" value=\"***DEATH***\">");
+            $("#profDrop").css('visibility', 'visible');
+          });
+
+          $("#save_btn").click(() => {
+            console.log("save button");
+            var birthVal = $("#tempBirth").val();
+            var deathVal = $("#tempDeath").val();
+            var profAdd = $("#profDrop option:selected").text();
+            $("#tempDeath").replaceWith("<div id=\"deathVal\" style=\"display:inline\">***DEATH***</div>");
+            $("#tempBirth").replaceWith("<div id=\"birthVal\" style=\"display:inline;\">***BIRTH***</div>");
+            $("#profDrop").css('visibility', 'hidden');
+            /*$.post("cisc-dean.stthomas.edu:8002/nameUpdate", (data, status) => {
+
+            });//.post*/
+
+          });
+        });
+
+
+
     </script>
 
   </body>

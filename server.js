@@ -16,7 +16,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 //console.log(poster);
 
-var port = 8014;
+var port = 8002;
 //files we want to serv will be in this dir
 var public_dir = path.join(__dirname, 'public');
 var src_dir = path.join(__dirname, 'src');
@@ -159,7 +159,7 @@ app.get('/title', (req, res)=>{
 															}
 														}//writer for loop
 													}
-                                                    
+
                                                         console.log("DIRECTORS: \n\n");
                                                         console.log(result[0]);
                                                         console.log("\n\n");
@@ -307,13 +307,13 @@ app.get('/name', (req, res)=>{
 								poster = 'https://'+row[1].host + row[1].path;
 
 								data = data.replace(/\*\*\*PERSON NAME\*\*\*/g, row[0].primary_name);
-								data = data.replace(/\*\*\*BRITH\*\*\*/g, row[0].birth_year);
+								data = data.replace(/\*\*\*BIRTH\*\*\*/g, row[0].birth_year);
 								data = data.replace(/\*\*\*DEATH\*\*\*/g, row[0].death_year || 'present');
 								data = data.replace(/\*\*\*PROFESSIONS\*\*\*/g, row[0].primary_profession);
 								data = data.replace(/\*\*\*POSTER\*\*\*/g, poster);
 								data = data.replace(/\*\*\*ROWS\*\*\*/g, JSON.stringify(row[2]));
 
-                                console.log("\n\n"+data+"\n\n"); 
+                                //console.log("\n\n"+data+"\n\n");
 
 								res.writeHead(200, {'Content-Type' : 'text/html'});
                 res.write(data);
