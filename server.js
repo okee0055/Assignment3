@@ -159,8 +159,11 @@ app.get('/title', (req, res)=>{
 															}
 														}//writer for loop
 													}
-
-													if(result[0].directors != null) {
+                                                    
+                                                        console.log("DIRECTORS: \n\n");
+                                                        console.log(result[0]);
+                                                        console.log("\n\n");
+													if(result[0].directors != null && typeof result[0] !== 'undefined') {
 														var directors = result[0].directors.split(',');
 														for(var i=0; i<directors.length; i++)
 														{
@@ -294,12 +297,13 @@ app.get('/name', (req, res)=>{
 					});//promise
 
 					Promise.all([name_promise, prsnPoster_promise, knowTitles_promise ]).then((row) => {
-								console.log(row[0]);
-								console.log(row[1]);
-							  console.log("KnowTitles_Promise: ");
-								for(var i=0; i<row[2].length; i++)
+								//console.log(row[0]);
+								//console.log(row[1]);
+							  //console.log("KnowTitles_Promise: ");
+								/*
+                              for(var i=0; i<row[2].length; i++)
 									console.log(row[2][i]);
-
+                                */
 								poster = 'https://'+row[1].host + row[1].path;
 
 								data = data.replace(/\*\*\*PERSON NAME\*\*\*/g, row[0].primary_name);
@@ -308,6 +312,8 @@ app.get('/name', (req, res)=>{
 								data = data.replace(/\*\*\*PROFESSIONS\*\*\*/g, row[0].primary_profession);
 								data = data.replace(/\*\*\*POSTER\*\*\*/g, poster);
 								data = data.replace(/\*\*\*ROWS\*\*\*/g, JSON.stringify(row[2]));
+
+                                console.log("\n\n"+data+"\n\n"); 
 
 								res.writeHead(200, {'Content-Type' : 'text/html'});
                 res.write(data);
