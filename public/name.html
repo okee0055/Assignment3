@@ -6,6 +6,19 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <style>
+        .no_hover:hover{
+            color:#1a1a1a;
+        }
+
+        div li:hover{
+            color:red;
+        }
+    </style>
+
+
+
   </head>
   <body ng-app="app" ng-controller="ctrl">
     <h1 style="text-align:center; padding-top: .5em; padding-bottom:.25em;">Movie/TV Database</h1>
@@ -18,43 +31,34 @@
 <div class="collapse navbar-collapse" id="navbarColor01">
  <ul class="navbar-nav mr-auto">
    <li class="nav-item active">
-     <a class="nav-link" href="http://cisc-dean.stthomas.edu:8002/">Home <span class="sr-only">(current)</span></a>
+     <a class="nav-link" href="http://cisc-dean.stthomas.edu:8014/">Home <span class="sr-only">(current)</span></a>
    </li>
    <li class="nav-item">
-     <a class="nav-link" href="http://cisc-dean.stthomas.edu:8002/about">About</a>
+     <a class="nav-link" href="http://cisc-dean.stthomas.edu:8014/about">About</a>
    </li>
  </ul>
- <button type="button" class="btn btn-outline-info" id="edit_btn">Edit</button>
- <button type="button" class="btn btn-outline-info" id="save_btn">Save</button>
+ <button type="button" class="btn btn-outline-info" id="edit_btn" ng-click="begin_edit()">Edit</button>
+ <button type="button" class="btn btn-outline-info" id="save_btn" ng-click="end_edit()">Save</button>
 </div>
 </nav>
 <div id="movie-info" style="display:inline; position:relative; display:flex; flex-direction:row;  justify-content:space-around; align-items:center; width=100%;">
 <div>
-  <h1 style="margin:0 0 20px 0;">***PERSON NAME***</h1>
-  <div class="form-group">
+  <h1 style="margin:20px 0px 20px 20px;">***PERSON NAME***</h1>
+  <div class="form-group" style="margin:20px 0px 0px 20px;">
   <h4 id="birth">Birth Year: <div id="birthVal" style="display:inline;">***BIRTH***</div></h4>
   <h4 id="death">Death Year: <div id="deathVal" style="display:inline">***DEATH***</div></h4>
-  <h4 id="prof"><div ="profOG" style="display:inline;">Professions: ***PROFESSIONS***</div>
+  <h4 id="prof"><div id="profOG" style="display:inline;">Professions: <li class="prof_li" ng-click="remove_li($index)" ng-repeat="prof in cur_profs">{{ prof }}</li></div>
     <div id="profDrop" style="display:inline; visibility:hidden;">
-      <select>
-        <option value="producer">Producer</option>
-        <option value="actor">Actor</option>
-        <option value="actress">Actress</option>
-        <option value="director">Director</option>
-        <option value="writer">Writer</option>
-        <option value="casting">Casting</option>
-        <option value="composer">Composer</option>
-      </select>
-      <button type="button" class="btn btn-outline-info" id="addProf">Add</button>
+      <select ng-model="selected_prof" ng-options="prof for prof in other_profs"></select>
+      <button type="button" class="btn btn-outline-info" id="addProf" ng-click="add_prof()">Add</button>
     </div>
   </h4>
 
 </div>
-  <div id="poster"><img src="***POSTER***" border="6" style="width:25em; height:auto; padding-top: 1em;padding-left: 1em;"></div>
+  <div id="poster"><img src="***POSTER***" border="6" style="width:25em; height:auto; margin:0px 0px 20px 20px;"></div>
 </div>
 <!--</div>-->
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-  <div id="top-billed" style="display:block; float:bottom; position:relative;">
+  <div id="top-billed" style="display:block; float:bottom; position:relative; margin:20px 20px 0px 20px">
     <h4>Titles Known For</h4>
     <table class="table table-hover" style="color:#1a1a1a">
   <thead>
@@ -83,43 +87,93 @@
         app.controller('ctrl', function($scope){
             rows = {rows:***ROWS***};
             for(var i=0;i<rows.rows.length;i++){
-                rows.rows[i].url = 'http://cisc-dean.stthomas.edu:8002/title?tconst='+rows.rows[i].tconst;
+                rows.rows[i].url = 'http://cisc-dean.stthomas.edu:8014/title?tconst='+rows.rows[i].tconst;
             }
             $scope.rows = rows.rows;
-            console.log($scope.rows);
-            //console.log({rows:***ROWS***});
-            var js_obj = {rows:[1,2,3]};
-            var json_string = JSON.stringify(js_obj);
-            var json_to_js = JSON.parse(json_string);
-            console.log(js_obj);
-            console.log(json_string);
-            console.log(json_to_js);
+            //console.log($scope.rows);
+            $scope.other_profs = {'producer':'producer','actor':'actor', 'actress':'actress','director':'director','writer':'wrtier','casting':'casting','composer':'composer'};
+            $scope.cur_profs = "***PROFESSIONS***".split(',');
+            //console.log($scope.cur_profs);
+            for(var i=0;i<$scope.cur_profs.length;i++){
+                delete $scope.other_profs[$scope.cur_profs[i]];
+            }
+            $scope.remove_li = function(profession){
+                if($scope.edit){
+                    $scope.other_profs[$scope.cur_profs[profession]] = $scope.cur_profs[profession];
+                    console.log($scope.cur_profs);
+                    console.log(profession);
+                    delete $scope.cur_profs[profession];
+                    var tmp = [];
+                    for(var i=0;i<$scope.cur_profs.length;i++){
+                        if($scope.cur_profs[i]){
+                            tmp.push($scope.cur_profs[i]);
+                        }
+                    }
+                    $scope.cur_profs = tmp;
+                    console.log($scope.cur_profs);
+                    console.log(tmp);
+                }
+            }
+            $scope.add_prof = function(){
+                if($scope.cur_profs.length < 3 && typeof $scope.selected_prof.length !== 'undifined'){
+                    $scope.cur_profs.push($scope.selected_prof);
+                    delete $scope.other_profs[$scope.selected_prof.toLowerCase()];
+                }
+            }
+            $scope.begin_edit = function(){
+                $scope.edit = true;
+            }
+            $scope.end_edit = function(){
+                $scope.edit = false;
+            }
         });
+        $(".prof_li").addClass("no_hover");
+        function update_btns(){
+        }
         //console.log('after');
         $(document).ready(() => {
           //var originalProf;
           $("#edit_btn").click(() => {
             var originalProf = $("profOG").val();
-            //console.log("Original Professions: " + originalProf)
-            $("#birthVal").replaceWith("<input id=\"tempBirth\" type=\"number\" class=\"form-control\" style=\"width:8em; display:inline;\" value=\"***BIRTH***\">");
-            $("#deathVal").replaceWith("<input id=\"tempDeath\" type=\"number\" class=\"form-control\" style=\"width:8em; display:inline;\" value=\"***DEATH***\">");
+            var birthVal = $("#birthVal").html();
+            var deathVal = $("#deathVal").html();
+           //console.log("Original Professions: " + originalProf)
+            $("#birthVal").replaceWith("<input id=\"tempBirth\" type=\"text\" class=\"form-control\" style=\"width:8em; display:inline;\" value=\""+birthVal+"\">");
+            $("#deathVal").replaceWith("<input id=\"tempDeath\" type=\"text\" class=\"form-control\" style=\"width:8em; display:inline;\" value=\""+deathVal+"\">");
             $("#profDrop").css('visibility', 'visible');
+            //$(".prof_li").append("<button type=\"button\" class=\"btn btn-outline-danger prof_li_btn\" style=\"padding:none;\">X</button>");
+            $(".prof_li").removeClass("no_hover");
+            /*
+               $(".prof_li").hover(function(){
+                   $(this).css("color","red");
+               },function(){
+                   $(this).css("color","#1a1a1a");
+               });
+               */
           });
 
           $("#save_btn").click(() => {
             console.log("save button");
-           var birthVal = $("#tempBirth").val();
+            var birthVal = $("#tempBirth").val();
             var deathVal = $("#tempDeath").val();
             var profAdd = $("#profDrop option:selected").text();
-            $("#tempDeath").replaceWith("<div id=\"deathVal\" style=\"display:inline\">***DEATH***</div>");
-            $("#tempBirth").replaceWith("<div id=\"birthVal\" style=\"display:inline;\">***BIRTH***</div>");
+            $("#tempDeath").replaceWith("<div id=\"deathVal\" style=\"display:inline\">"+deathVal+"</div>");
+            $("#tempBirth").replaceWith("<div id=\"birthVal\" style=\"display:inline;\">"+birthVal+"</div>");
             $("#profDrop").css('visibility', 'hidden');
-            var postURL = "http://cisc-dean.stthomas.edu:8002/nameupdate?birth="+ birthVal+"&death="+ deathVal+"&prof="+profAdd;
+            var postURL = "http://cisc-dean.stthomas.edu:8014/nameupdate?birth="+ birthVal+"&death="+ deathVal+"&prof="+profAdd;
             console.log(postURL);
+            $(".prof_li").addClass("no_hover");
+
+            /*
+               $(".prof_li").hover(function(){
+                   $(this).css("color","#1a1a1a");
+               },function(){
+                   $(this).css("color","#1a1a1a");
+               });
             $.post(postURL, (data, status) => {
 
             });//.post
-
+            */
           });
         });
 
