@@ -67,20 +67,41 @@
     <script>
         var app = angular.module('app', []);
         app.controller('ctrl', function($scope){
-            rows = {rows:***ROWS***};
+            var orig_rows = {rows:***ROWS***};
+            var rows = [];
+
+            for(var i=0; i< orig_rows.rows.length; i++)
+            {
+              console.log("Original Row: " +orig_rows[i]);
+              if(orig_rows.rows[i] !== null)
+              {
+                rows.push(orig_rows.rows[i]);
+              }
+            }
+            console.log(rows);
+
+            for(var i=0;i<rows.length;i++){
+                rows[i].death_year = rows[i].death_year || 'present';
+                rows[i].url = 'http://cisc-dean.stthomas.edu:8002/name?nconst='+rows[i].nconst;
+            }
+            $scope.rows = rows;
+
+            //rows = {rows:***ROWS***};
+            /*console.log(rows.rows);
+
             for(var i=0;i<rows.rows.length;i++){
                 rows.rows[i].death_year = rows.rows[i].death_year || 'present';
                 rows.rows[i].url = 'http://cisc-dean.stthomas.edu:8002/name?nconst='+rows.rows[i].nconst;
             }
-            $scope.rows = rows.rows;
+            $scope.rows = rows.rows;*/
             console.log($scope.rows);
             //console.log({rows:***ROWS***});
-            var js_obj = {rows:[1,2,3]};
+            /*var js_obj = {rows:[1,2,3]};
             var json_string = JSON.stringify(js_obj);
             var json_to_js = JSON.parse(json_string);
             console.log(js_obj);
             console.log(json_string);
-            console.log(json_to_js);
+            console.log(json_to_js);*/
         });
         var types = "<div class=\"btn-group btn-group-toggle\" data-toggle=\"buttons\">";
         types += "<label class=\"btn btn-primary\">";
