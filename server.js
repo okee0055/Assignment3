@@ -51,6 +51,8 @@ app.get('/index.html', (req, res)=>{
     res.sendFile(path.join(public_dir, 'index.html'));
 });
 
+
+
 app.get('/about', function(req, res){
     req_url = url.parse(req.url);
     fs.readFile(path.join(public_dir, 'about.html'), 'utf8', (err, data) => {
@@ -69,6 +71,12 @@ app.get('/about', function(req, res){
     });
     //res.sendFile(path.join(public_dir, 'index.html'));
 });
+
+app.get('/src/kelsey', (req, res) => {
+	fs.readFile(path.join(src_dir, 'kelsey.jpg'), (err, data) => {
+
+	})
+})
 
 app.get('/title', (req, res)=>{
     fs.readFile(path.join(public_dir, 'title.html'), 'utf8', (err, data) => {
@@ -359,6 +367,24 @@ app.post('/nameupdate', (req, res) => {
 	var inputData = [params.birth, params.death, params.prof, params.nconst];
 
 db.run("UPDATE NAMES SET birth_year=?, death_year=?, primary_profession = ? WHERE nconst =?",inputData,function(err,rows){
+	if(err){
+		console.log(err);
+	}
+	else {
+		console.log("success");
+	}
+});
+});//app.post(nameupdate)
+
+app.post('/titleupdate', (req, res) => {
+	console.log("In POST ");
+	var req_url = url.parse(req.url);
+	var params = query.parse(req_url.query, "&");
+	console.log(params);
+	//db.run("UPDATE NAMES SET birth_year = ?, death_year = ?, primary_profession = ? WHERE nconst = ?", [params.birth, params.death, params.prof, params.nconst]);
+	var inputData = [params.type, params.genre, params.tconst];
+
+db.run("UPDATE TITLES SET title_type=?, genres=? WHERE tconst =?",inputData,function(err,rows){
 	if(err){
 		console.log(err);
 	}
