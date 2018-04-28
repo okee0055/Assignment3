@@ -143,6 +143,7 @@
                 for(var i=0; i<$scope.cur_profs.length; i++){
                     newProfs = newProfs + $scope.cur_profs[i] + ",";
                 }
+                newProfs = newProfs.substring(0,newProfs.length-1);
                 var nameURL = "/nameupdate?birth="+ birthVal+"&death="+ deathVal+"&prof="+newProfs + "&nconst="+nconst;
                 console.log(nameURL);
                 $http({
