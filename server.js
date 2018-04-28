@@ -17,7 +17,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 //console.log(poster);
 
-var port = 8026;
+var port = 8014;
 //files we want to serv will be in this dir
 var public_dir = path.join(__dirname, 'public');
 var src_dir = path.join(__dirname, 'src');
