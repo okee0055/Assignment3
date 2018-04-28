@@ -74,9 +74,37 @@ app.get('/about', function(req, res){
 
 app.get('/src/kelsey', (req, res) => {
 	fs.readFile(path.join(src_dir, 'kelsey.jpg'), (err, data) => {
+		if(err){
+			 console.log(err);
+			 res.writeHead(404, {'Content-Type' : 'text/plain'});
+			 res.write('Could not find file / ');
+			 res.end();
+		}
+		else{
+			//  var result = data.replace(/{{unique_string}}/g, 'Movie/TV Database');
+				res.writeHead(200, {'Content-Type' : 'text/jpeg'});
+				res.write(data);
+				res.end();
+		}
+	});
+});
 
-	})
-})
+app.get('/src/oliver', (req, res) => {
+	fs.readFile(path.join(src_dir, 'oliver.jpeg'), (err, data) => {
+		if(err){
+			 console.log(err);
+			 res.writeHead(404, {'Content-Type' : 'text/plain'});
+			 res.write('Could not find file / ');
+			 res.end();
+		}
+		else{
+			//  var result = data.replace(/{{unique_string}}/g, 'Movie/TV Database');
+				res.writeHead(200, {'Content-Type' : 'text/jpeg'});
+				res.write(data);
+				res.end();
+		}
+	});
+});
 
 app.get('/title', (req, res)=>{
     fs.readFile(path.join(public_dir, 'title.html'), 'utf8', (err, data) => {
