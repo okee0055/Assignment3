@@ -38,7 +38,7 @@
    </li>
  </ul>
  <button type="button" class="btn btn-outline-info" id="edit_btn" ng-click="begin_edit()">Edit</button>
- <button type="button" class="btn btn-outline-info" id="save_btn" ng-click="end_edit()">Save</button>
+ <button type="button" class="btn btn-outline-info" id="save_btn" ng-click="end_edit()" ng-click="post()">Save</button>
 </div>
 </nav>
 <div id="movie-info" style="display:inline; position:relative; display:flex; flex-direction:row;  justify-content:space-around; align-items:center; width=100%;">
@@ -100,8 +100,8 @@
             $scope.remove_li = function(profession){
                 if($scope.edit){
                     $scope.other_profs[$scope.cur_profs[profession]] = $scope.cur_profs[profession];
-                    console.log($scope.cur_profs);
-                    console.log(profession);
+                  //  console.log($scope.cur_profs);
+                    //console.log(profession);
                     delete $scope.cur_profs[profession];
                     var tmp = [];
                     for(var i=0;i<$scope.cur_profs.length;i++){
@@ -110,8 +110,8 @@
                         }
                     }
                     $scope.cur_profs = tmp;
-                    console.log($scope.cur_profs);
-                    console.log(tmp);
+                    //console.log($scope.cur_profs);
+                    //console.log(tmp);
                 }
             }
             $scope.add_prof = function(){
@@ -126,6 +126,31 @@
             $scope.end_edit = function(){
                 $scope.edit = false;
             }
+
+            $scope.post = function() {
+              console.log("In the post function");
+              var pathname = window.location.href;
+              var url = pathname.split("=");
+              var nconst = url[1];
+              console.log(nconst);
+             var birthVal = $("#birthVal").html();
+             console.log(birthVal);
+              //var deathVal = $("#deathVal").html();
+              if(!$.isNumeric(parseInt($("#deathVal").html()))){
+                var deathVal = null;
+              } else {
+                var deathVal = parseInt($("#deathVal").html());
+              }//else
+              var newProfs = "";
+              for(var i=0; i<$scope.cur_profs.length; i++){
+                  newProfs = newProfs + $scope.cur_profs[i];
+              }
+              var nameURL = "nameupdate?birth="+ birthVal+"&death="+ deathVal+"&prof="+profAdd + "&nconst"+nconst;
+              $http.post(nameURL, data, config).then((successCallback, errorCallback) {
+                console.log("Success: " + successCallback);
+              });
+
+            }//post
         });
         $(".prof_li").addClass("no_hover");
         function update_btns(){
@@ -153,27 +178,21 @@
           });
 
           $("#save_btn").click(() => {
-            console.log("save button");
+            //console.log("save button");
+            var pathname = window.location.href;
+            var url = pathname.split("=");
+            var nconst = url[1];
             var birthVal = $("#tempBirth").val();
             var deathVal = $("#tempDeath").val();
             var profAdd = $("#profDrop option:selected").text();
             $("#tempDeath").replaceWith("<div id=\"deathVal\" style=\"display:inline\">"+deathVal+"</div>");
             $("#tempBirth").replaceWith("<div id=\"birthVal\" style=\"display:inline;\">"+birthVal+"</div>");
             $("#profDrop").css('visibility', 'hidden');
-            var postURL = "http://cisc-dean.stthomas.edu:8014/nameupdate?birth="+ birthVal+"&death="+ deathVal+"&prof="+profAdd;
-            console.log(postURL);
+            var postURL = "/nameupdate?birth="+ birthVal+"&death="+ deathVal+"&prof="+profAdd + "&nconst"+nconst;
+          //  console.log(postURL);
             $(".prof_li").addClass("no_hover");
 
-            /*
-               $(".prof_li").hover(function(){
-                   $(this).css("color","#1a1a1a");
-               },function(){
-                   $(this).css("color","#1a1a1a");
-               });
-            $.post(postURL, (data, status) => {
 
-            });//.post
-            */
           });
         });
 

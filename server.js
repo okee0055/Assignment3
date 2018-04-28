@@ -11,12 +11,13 @@ var sqlite3 = require('sqlite3').verbose();
 var multiparty = require('multiparty');
 var bodyParser = require('body-parser');
 var poster = require('imdb_poster.js');
+var query = require('querystring');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 //console.log(poster);
 
-var port = 8002;
+var port = 8026;
 //files we want to serv will be in this dir
 var public_dir = path.join(__dirname, 'public');
 var src_dir = path.join(__dirname, 'src');
@@ -50,7 +51,7 @@ app.get('/index.html', (req, res)=>{
     res.sendFile(path.join(public_dir, 'index.html'));
 });
 
-/*app.get('/about', function(req, res){
+app.get('/about', function(req, res){
     req_url = url.parse(req.url);
     fs.readFile(path.join(public_dir, 'about.html'), 'utf8', (err, data) => {
         if(err){
@@ -62,12 +63,12 @@ app.get('/index.html', (req, res)=>{
         else{
           //  var result = data.replace(/{{unique_string}}/g, 'Movie/TV Database');
             res.writeHead(200, {'Content-Type' : 'text/html'});
-            res.write(result);
+            res.write(data);
             res.end();
         }
     });
     //res.sendFile(path.join(public_dir, 'index.html'));
-});*/
+});
 
 app.get('/title', (req, res)=>{
     fs.readFile(path.join(public_dir, 'title.html'), 'utf8', (err, data) => {
@@ -350,11 +351,10 @@ app.get('/name', (req, res)=>{
 
 
 app.post('/nameupdate', (req, res) => {
-	console.log("In update post!!!");
-	console.log(req);
-	console.log("Birth: " +req.body.birth);
-	console.log("Death: " + req.body.death);
-	console.log("Profession: " + req.body.prof);
+	var req_url = url.parse(req.url);
+	var params = query.parse(req_url.query, "&");
+	console.log(params);
+	//db.run("UPDATE NAMES SET birth_year = ?, death_year = ?, primary_profession = ? WHERE nconst = ?", [params.birth, params.death, params.prof, params.nconst]);
 
 });//app.post(nameupdate)
 

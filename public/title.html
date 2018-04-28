@@ -18,13 +18,14 @@
 <div class="collapse navbar-collapse" id="navbarColor01">
  <ul class="navbar-nav mr-auto">
    <li class="nav-item active">
-     <a class="nav-link" href="http://cisc-dean.stthomas.edu:8002/">Home <span class="sr-only">(current)</span></a>
+     <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
    </li>
    <li class="nav-item">
-     <a class="nav-link" href="http://cisc-dean.stthomas.edu:8002/about">About</a>
+     <a class="nav-link" href="/about">About</a>
    </li>
  </ul>
  <button type="button" class="btn btn-outline-info" id="edit_btn">Edit</button>
+ <button type="button" class="btn btn-outline-info" id="save_btn">Save</button>
   </div>
 </nav>
   <div id="movie-info" style="display:inline; position:relative; display:flex; flex-direction:row; flex-wrap:wrap; justify-content:space-around; align-items:center; width=100%;">
@@ -35,7 +36,11 @@
     <h4 id="start">Start Year: ***START*** </h4>
     <h4 id="end">End Year: ***END***</h4>
     <h4 id="run_time">Run Time: ***RUN TIME*** minutes</h4>
-    <h4 id="genre">Genre: ***GENRE***<h4>
+    <h4 id="genre">Genre: <div id="genre" style="display:inline"><li class="genre_li" ng-click="remove_li($index)" ng-repeat="genre in cur_genres">{{ genre }}</li></div>
+      <div id="genreDrop" style="display:inline; visibility:hidden;">
+        <select ng-model="selected_prof" ng-options="genre for genre in other_genre"></select>
+        <button type="button" class="btn btn-outline-info" id="addGenre" ng-click="add_genre()">Add</button>
+      </div>
     <h4 id="avg_rating">Rating: ***AVERAGE RATE***</h4><h4>Votes: ***NUM VOTES***</h4>
     </div>
   </div>
@@ -65,64 +70,118 @@
 <br><br>
   </div>
     <script>
-        var app = angular.module('app', []);
-        app.controller('ctrl', function($scope){
-            var orig_rows = {rows:***ROWS***};
-            var rows = [];
-
-            for(var i=0; i< orig_rows.rows.length; i++)
-            {
-              console.log("Original Row: " +orig_rows[i]);
-              if(orig_rows.rows[i] !== null)
-              {
-                rows.push(orig_rows.rows[i]);
-              }
+    var app = angular.module('app', []);
+    app.controller('ctrl', function($scope){
+        rows = {rows:***ROWS***};
+        for(var i=0;i<rows.rows.length;i++){
+            rows.rows[i].url = 'http://cisc-dean.stthomas.edu:8014/title?tconst='+rows.rows[i].tconst;
+        }
+        $scope.rows = rows.rows;
+        //console.log($scope.rows);
+        $scope.other_genre = {'producer':'producer','actor':'actor', 'actress':'actress','director':'director','writer':'wrtier','casting':'casting','composer':'composer'};
+        $scope.cur_genres = "***GENRE***".split(',');
+        //console.log($scope.cur_genres);
+        for(var i=0;i<$scope.cur_genres.length;i++){
+            delete $scope.other_genre[$scope.cur_genres[i]];
+        }
+        $scope.remove_li = function(profession){
+            if($scope.edit){
+                $scope.other_genre[$scope.cur_genres[profession]] = $scope.cur_genres[profession];
+              //  console.log($scope.cur_genres);
+                //console.log(profession);
+                delete $scope.cur_genres[profession];
+                var tmp = [];
+                for(var i=0;i<$scope.cur_genres.length;i++){
+                    if($scope.cur_genres[i]){
+                        tmp.push($scope.cur_genres[i]);
+                    }
+                }
+                $scope.cur_genres = tmp;
+                //console.log($scope.cur_genres);
+                //console.log(tmp);
             }
-            console.log(rows);
-
-            for(var i=0;i<rows.length;i++){
-                rows[i].death_year = rows[i].death_year || 'present';
-                rows[i].url = 'http://cisc-dean.stthomas.edu:8002/name?nconst='+rows[i].nconst;
+        }
+        $scope.add_prof = function(){
+            if($scope.cur_genres.length < 3 && typeof $scope.selected_prof.length !== 'undifined'){
+                $scope.cur_genres.push($scope.selected_prof);
+                delete $scope.other_genre[$scope.selected_prof.toLowerCase()];
             }
-            $scope.rows = rows;
+        }
+        $scope.begin_edit = function(){
+            $scope.edit = true;
+        }
+        $scope.end_edit = function(){
+            $scope.edit = false;
+        }
 
-            //rows = {rows:***ROWS***};
-            /*console.log(rows.rows);
+      /*  $scope.post = function() {
+          console.log("In the post function");
+          var pathname = window.location.href;
+          var url = pathname.split("=");
+          var nconst = url[1];
+          console.log(nconst);
+         var birthVal = $("#birthVal").html();
+         console.log(birthVal);
+          //var deathVal = $("#deathVal").html();
+          if(!$.isNumeric(parseInt($("#deathVal").html()))){
+            var deathVal = null;
+          } else {
+            var deathVal = parseInt($("#deathVal").html());
+          }//else
+          var newProfs = "";
+          for(var i=0; i<$scope.cur_genres.length; i++){
+              newProfs = newProfs + $scope.cur_genres[i];
+          }
+          var nameURL = "nameupdate?birth="+ birthVal+"&death="+ deathVal+"&prof="+profAdd + "&nconst"+nconst;
+          $http.post(nameURL, data, config).then((successCallback, errorCallback) {
+            console.log("Success: " + successCallback);
+          });
 
-            for(var i=0;i<rows.rows.length;i++){
-                rows.rows[i].death_year = rows.rows[i].death_year || 'present';
-                rows.rows[i].url = 'http://cisc-dean.stthomas.edu:8002/name?nconst='+rows.rows[i].nconst;
-            }
-            $scope.rows = rows.rows;*/
-            console.log($scope.rows);
-            //console.log({rows:***ROWS***});
-            /*var js_obj = {rows:[1,2,3]};
-            var json_string = JSON.stringify(js_obj);
-            var json_to_js = JSON.parse(json_string);
-            console.log(js_obj);
-            console.log(json_string);
-            console.log(json_to_js);*/
-        });
-        var types = "<div class=\"btn-group btn-group-toggle\" data-toggle=\"buttons\">";
-        types += "<label class=\"btn btn-primary\">";
-        types += "<input type=\"radio\" checked=\"\" autocomplete=\"off\"> movie";
-        types += "</label>";
-        types += "<label class=\"btn btn-primary\">";
-        types += "<input type=\"radio\" autocomplete=\"off\"> tvshow";
-        types += "</label>";
-        types += "<label class=\"btn btn-primary\">";
-        types += "<input type=\"radio\" autocomplete=\"off\"> videogame";
-        types += "</label>";
-        types += "</div>";
-        //var types = "<input type=\"checkbox\" checked=";
-        //types += " there";
+        }//post*/
+    });
+
         $(document).ready(function(){
             $("#edit_btn").click(function(){
-                console.log('hey');
                 //$("#type").replaceWith("<input type=\"text\" class=\"form-control\" value=\"***TITLE TYPE***\">");
-                $("#type").replaceWith(types);
-                $("#genre").replaceWith("<input type=\"text\" class=\"form-control\" value=\"***GENRE***\">");
-            });
+                $("#genreDrop").css('visibility', 'visible');
+              //  <div id="genre" style="display:inline">***GENRE***</div>
+              //  $("#genre").replaceWith("<input id=\"tempGenre\" type=\"text\" class=\"form-control\" value=\"***GENRE***\">");
+              //  $("#profDrop").css('visibility', 'visible');
+                });
+
+                $("#save_btn").click(() => {
+                  $("#genreDrop").css('visibility', 'hidden');
+                  //$("#genre").replaceWith("<div id=\"genre\" style=\"display:inline\">\"***GENRE***\"</div>");
+
+                });
+
+                $("#addGenre").click(()=>{
+                  console.log("Before genres");
+                  var genres = $("#tempGenre").val();
+                  var currGenres = genres.split(",");
+                  console.log(currGenres);
+                  var profAdd = $("#genreDrop option:selected").text();
+                  console.log(currGenres.length);
+                  if(currGenres.length>=3)
+                  {
+                    alert("Cannot add more genres");
+                  }
+                  else if(currGenres.length < 3) {
+                    console.log("In Else if");
+                    currGenres.push(profAdd);
+                    console.log(profAdd);
+                    console.log(currGenres);
+                  }
+                  var newGenre = "";
+                  for(var i=0 ; i<currGenres.length; i++){
+                    newGenre = newGenre+ currGenres[i];
+                  }
+                  $("#tempGenre").replace("***GENRE***", newGenre);
+                //  console.log(genres);
+
+                });
+
+
         });
 
 
