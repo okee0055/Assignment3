@@ -16,6 +16,7 @@
     "multiparty": "latest",
     "sqlite3":  "3.1.x",
     "express": "latest",
-    "body-parser": "latest"
+    "body-parser": "latest",
+    "querystring": "latest"
   }
 }
