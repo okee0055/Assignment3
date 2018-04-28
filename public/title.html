@@ -87,7 +87,7 @@
   </div>
   <script>
         var app = angular.module('app', []);
-        app.controller('ctrl', function($scope){
+        app.controller('ctrl', function($scope, $http){
             rows = {rows:***ROWS***};
             real_rows = []
             for(var i=0;i<rows.rows.length;i++){
