@@ -4,8 +4,21 @@
     <link rel="stylesheet" href="https://bootswatch.com/4/lux/bootstrap.min.css">
     <title>Movie/TV Project</title>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <style>
+        .no_hover:hover{
+            color:#1a1a1a;
+        }
+
+        div li:hover{
+            color:red;
+        }
+    </style>
+
+
+
   </head>
   <body ng-app="app" ng-controller="ctrl">
     <h1 style="text-align:center; padding-top: .5em; padding-bottom:.25em;">Movie/TV Database</h1>
@@ -24,30 +37,34 @@
      <a class="nav-link" href="/about">About</a>
    </li>
  </ul>
- <button type="button" class="btn btn-outline-info" id="edit_btn">Edit</button>
- <button type="button" class="btn btn-outline-info" id="save_btn">Save</button>
-  </div>
+ <button type="button" class="btn btn-outline-info" id="edit_btn" ng-click="begin_edit()">Edit</button>
+ <button type="button" class="btn btn-outline-info" id="save_btn" ng-click="end_edit()">Save</button>
+</div>
 </nav>
-  <div id="movie-info" style="display:inline; position:relative; display:flex; flex-direction:row; flex-wrap:wrap; justify-content:space-around; align-items:center; width=100%;">
-  <div>
-    <h1 style="margin:0 0 20px 0;">***MOVIE TITLE***</h1>
-    <div class="form-group">
-    <h4 id="type">Type: ***TITLE TYPE***</h4>
-    <h4 id="start">Start Year: ***START*** </h4>
-    <h4 id="end">End Year: ***END***</h4>
-    <h4 id="run_time">Run Time: ***RUN TIME*** minutes</h4>
-    <h4 id="genre">Genre: <div id="genre" style="display:inline"><li class="genre_li" ng-click="remove_li($index)" ng-repeat="genre in cur_genres">{{ genre }}</li></div>
-      <div id="genreDrop" style="display:inline; visibility:hidden;">
-        <select ng-model="selected_prof" ng-options="genre for genre in other_genre"></select>
-        <button type="button" class="btn btn-outline-info" id="addGenre" ng-click="add_genre()">Add</button>
-      </div>
-    <h4 id="avg_rating">Rating: ***AVERAGE RATE***</h4><h4>Votes: ***NUM VOTES***</h4>
+<div id="movie-info" style="display:inline; position:relative; display:flex; flex-direction:row;  justify-content:space-around; align-items:flex-start; width=100%;">
+<div>
+  <h1 style="margin:20px 0px 20px 20px;">***MOVIE TITLE***</h1>
+  <div class="form-group" style="margin:20px 0px 0px 20px;">
+  <h4 id="type"><div id="type_list_out" style="display:inline;">Type: <li class="type_li" ng-click="rm_type_li($index)" ng-repeat="type in cur_types">{{ type }}</li></div>
+    <div id="type_drop" style="display:inline; visibility:hidden;">
+      <select ng-model="selected_type" ng-options="type for type in other_types"></select>
+      <button type="button" class="btn btn-outline-info" id="add_type" ng-click="add_type()">Add</button>
     </div>
-  </div>
-    <div id="poster"><img src="***POSTER***" border="6" style="width:25em; height:auto; padding-top: 1em;padding-left: 1em;"></div>
-  </div>
-<br><br><br><br><br><br><br><br><br>
-  <div id="top-billed" style="display:block; float:bottom; position:relative;">
+  <h4 id="start">Start Year: <div id="start_year" style="display:inline">***START***</div></h4>
+  <h4 id="end">End Year: <div id="end_year" style="display:inline">***END***</div></h4>
+  <h4 id="length">Run Time: <div id="run_time" style="display:inline">***RUN TIME***</div> minutes</h4>
+  <h4 id="genre"><div id="genre_list_out" style="display:inline;">GENRE: <li class="genre_li" ng-click="rm_genre_li($index)" ng-repeat="genre in cur_genres">{{ genre }}</li></div>
+    <div id="genre_drop" style="display:inline; visibility:hidden;">
+      <select ng-model="selected_genre" ng-options="genre for genre in other_genres"></select>
+      <button type="button" class="btn btn-outline-info" id="add_genre" ng-click="add_genre()">Add</button>
+    </div>
+  </h4>
+
+</div>
+  <div id="poster"><img src="***POSTER***" border="6" style="width:25em; height:auto; margin:0px 0px 20px 20px;"></div>
+</div>
+<!--</div>-->
+  <div id="top-billed" style="margin:20px 20px 20px 20px">
     <h4>Top Billed Cast</h4>
     <table class="table table-hover" style="color:#1a1a1a">
   <thead>
@@ -67,125 +84,151 @@
     </tr>
   </tbody>
 </table>
-<br><br>
   </div>
-    <script>
-    var app = angular.module('app', []);
-    app.controller('ctrl', function($scope){
-        rows = {rows:***ROWS***};
-        for(var i=0;i<rows.rows.length;i++){
-            rows.rows[i].url = 'http://cisc-dean.stthomas.edu:8014/title?tconst='+rows.rows[i].tconst;
-        }
-        $scope.rows = rows.rows;
-        //console.log($scope.rows);
-        $scope.other_genre = {'producer':'producer','actor':'actor', 'actress':'actress','director':'director','writer':'wrtier','casting':'casting','composer':'composer'};
-        $scope.cur_genres = "***GENRE***".split(',');
-        //console.log($scope.cur_genres);
-        for(var i=0;i<$scope.cur_genres.length;i++){
-            delete $scope.other_genre[$scope.cur_genres[i]];
-        }
-        $scope.remove_li = function(profession){
-            if($scope.edit){
-                $scope.other_genre[$scope.cur_genres[profession]] = $scope.cur_genres[profession];
-              //  console.log($scope.cur_genres);
-                //console.log(profession);
-                delete $scope.cur_genres[profession];
-                var tmp = [];
-                for(var i=0;i<$scope.cur_genres.length;i++){
-                    if($scope.cur_genres[i]){
-                        tmp.push($scope.cur_genres[i]);
-                    }
+  <script>
+        var app = angular.module('app', []);
+        app.controller('ctrl', function($scope){
+            rows = {rows:***ROWS***};
+            real_rows = []
+            for(var i=0;i<rows.rows.length;i++){
+                if(rows.rows[i]){
+                    rows.rows[i].death_year = rows.rows[i].death_year || 'present';
+                    rows.rows[i].url = '/name?nconst='+rows.rows[i].nconst;
+                    real_rows.push(rows.rows[i]);
                 }
-                $scope.cur_genres = tmp;
-                //console.log($scope.cur_genres);
-                //console.log(tmp);
             }
-        }
-        $scope.add_prof = function(){
-            if($scope.cur_genres.length < 3 && typeof $scope.selected_prof.length !== 'undifined'){
-                $scope.cur_genres.push($scope.selected_prof);
-                delete $scope.other_genre[$scope.selected_prof.toLowerCase()];
+            $scope.rows = real_rows;
+            $scope.other_types = {'tvseries':'tvseries','movie':'movie', 'short':'short','videogame':'videogame','tvminiseries':'tvminiseries'};
+            $scope.cur_types = "***TITLE TYPE***".split(',');
+            //console.log($scope.cur_types);
+            for(var i=0;i<$scope.cur_types.length;i++){
+                $scope.cur_types[i] = $scope.cur_types[i].toLowerCase();
             }
-        }
-        $scope.begin_edit = function(){
-            $scope.edit = true;
-        }
-        $scope.end_edit = function(){
-            $scope.edit = false;
-        }
+            for(var i=0;i<$scope.cur_types.length;i++){
+                delete $scope.other_types[$scope.cur_types[i]];
+            }
+            $scope.rm_type_li = function(type){
+                if($scope.edit){
+                    $scope.other_types[$scope.cur_types[type]] = $scope.cur_types[type];
+                    console.log($scope.cur_types);
+                    console.log(type);
+                    delete $scope.cur_types[type];
+                    var tmp = [];
+                    for(var i=0;i<$scope.cur_types.length;i++){
+                        if($scope.cur_types[i]){
+                            tmp.push($scope.cur_types[i]);
+                        }
+                    }
+                    $scope.cur_types = tmp;
+                    console.log($scope.cur_types);
+                    console.log(tmp);
+                }
+            }
+            $scope.add_type = function(){
+                if($scope.cur_types.length < 3 && typeof $scope.selected_type !== 'undefined' && $scope.selected_type != null){
+                    $scope.cur_types.push($scope.selected_type);
+                    delete $scope.other_types[$scope.selected_type.toLowerCase()];
+                }
+            }
 
-      /*  $scope.post = function() {
-          console.log("In the post function");
-          var pathname = window.location.href;
-          var url = pathname.split("=");
-          var nconst = url[1];
-          console.log(nconst);
-         var birthVal = $("#birthVal").html();
-         console.log(birthVal);
-          //var deathVal = $("#deathVal").html();
-          if(!$.isNumeric(parseInt($("#deathVal").html()))){
-            var deathVal = null;
-          } else {
-            var deathVal = parseInt($("#deathVal").html());
-          }//else
-          var newProfs = "";
-          for(var i=0; i<$scope.cur_genres.length; i++){
-              newProfs = newProfs + $scope.cur_genres[i];
-          }
-          var nameURL = "nameupdate?birth="+ birthVal+"&death="+ deathVal+"&prof="+profAdd + "&nconst"+nconst;
-          $http.post(nameURL, data, config).then((successCallback, errorCallback) {
-            console.log("Success: " + successCallback);
+            $scope.other_genres = {'documentary':'documentary','family':'family', 'sci-fi':'sci-fi','comedy':'comedy','horror':'horror','history':'history','drama':'drama','romance':'romance', 'crime':'crime', 'adventure':'adventure', 'war':'war', 'thriller':'thriller', 'mystery':'mystery'};
+            $scope.cur_genres = "***GENRE***".split(',');
+            for(var i=0;i<$scope.cur_genres.length;i++){
+                $scope.cur_genres[i] = $scope.cur_genres[i].toLowerCase();
+            }
+            for(var i=0;i<$scope.cur_genres.length;i++){
+                delete $scope.other_genres[$scope.cur_genres[i]];
+            }
+            $scope.rm_genre_li = function(genre){
+                if($scope.edit){
+                    $scope.other_genres[$scope.cur_genres[genre]] = $scope.cur_genres[genre];
+                    console.log($scope.cur_genres);
+                    console.log(genre);
+                    delete $scope.cur_genres[genre];
+                    var tmp = [];
+                    for(var i=0;i<$scope.cur_genres.length;i++){
+                        if($scope.cur_genres[i]){
+                            tmp.push($scope.cur_genres[i]);
+                        }
+                    }
+                    $scope.cur_genres = tmp;
+                    console.log($scope.cur_genres);
+                    console.log(tmp);
+                }
+            }
+            $scope.add_genre = function(){
+                if($scope.cur_genres.length < 3 && typeof $scope.selected_genre !== 'undefined' && $scope.selected_genre != null){
+                    $scope.cur_genres.push($scope.selected_genre);
+                    delete $scope.other_genres[$scope.selected_genre.toLowerCase()];
+                }
+            }
+
+            $scope.begin_edit = function(){
+                $scope.edit = true;
+            }
+            $scope.end_edit = function(){
+                $scope.edit = false;
+                console.log("In the post function");
+                var pathname = window.location.href;
+                var url = pathname.split("=");
+                var tconst = url[1];
+                var newTypes = "";
+                for(var i=0; i<$scope.cur_types.length; i++){
+                    newTypes = newTypes + $scope.cur_types[i] + ",";
+                }
+                var newGenres = "";
+                for(var i=0; i<$scope.cur_genres.length; i++){
+                    newGenres = newTypes + $scope.cur_genres[i] + ",";
+                }
+                var titleURL = "/titleupdate?type="+newTypes + "&genre="+newGenres + "&tconst="+tconst;
+                console.log(titleURL);
+                $http({
+                method: 'POST',
+                url: titleURL
+                }).then(function success(response) {
+                  console.log("Success");
+                // this function will be called when the request is success
+                }, function error(response) {
+                  console.log("Error");
+                // this function will be called when the request returned error status
+                });
+            }
+        });
+        $(".type_li").addClass("no_hover");
+        $(".genre_li").addClass("no_hover");
+        //console.log('after');
+        $(document).ready(() => {
+          $("#edit_btn").click(() => {
+            /*
+            var deathVal = $("#deathVal").html();
+            $("#birthVal").replaceWith("<input id=\"tempBirth\" type=\"text\" class=\"form-control\" style=\"width:8em; display:inline;\" value=\""+birthVal+"\">");
+            $("#deathVal").replaceWith("<input id=\"tempDeath\" type=\"text\" class=\"form-control\" style=\"width:8em; display:inline;\" value=\""+deathVal+"\">");
+            */
+            $("#type_drop").css('visibility', 'visible');
+            $(".type_li").removeClass("no_hover");
+            $("#genre_drop").css('visibility', 'visible');
+            $(".genre_li").removeClass("no_hover");
           });
 
-        }//post*/
-    });
-
-        $(document).ready(function(){
-            $("#edit_btn").click(function(){
-                //$("#type").replaceWith("<input type=\"text\" class=\"form-control\" value=\"***TITLE TYPE***\">");
-                $("#genreDrop").css('visibility', 'visible');
-              //  <div id="genre" style="display:inline">***GENRE***</div>
-              //  $("#genre").replaceWith("<input id=\"tempGenre\" type=\"text\" class=\"form-control\" value=\"***GENRE***\">");
-              //  $("#profDrop").css('visibility', 'visible');
-                });
-
-                $("#save_btn").click(() => {
-                  $("#genreDrop").css('visibility', 'hidden');
-                  //$("#genre").replaceWith("<div id=\"genre\" style=\"display:inline\">\"***GENRE***\"</div>");
-
-                });
-
-                $("#addGenre").click(()=>{
-                  console.log("Before genres");
-                  var genres = $("#tempGenre").val();
-                  var currGenres = genres.split(",");
-                  console.log(currGenres);
-                  var profAdd = $("#genreDrop option:selected").text();
-                  console.log(currGenres.length);
-                  if(currGenres.length>=3)
-                  {
-                    alert("Cannot add more genres");
-                  }
-                  else if(currGenres.length < 3) {
-                    console.log("In Else if");
-                    currGenres.push(profAdd);
-                    console.log(profAdd);
-                    console.log(currGenres);
-                  }
-                  var newGenre = "";
-                  for(var i=0 ; i<currGenres.length; i++){
-                    newGenre = newGenre+ currGenres[i];
-                  }
-                  $("#tempGenre").replace("***GENRE***", newGenre);
-                //  console.log(genres);
-
-                });
-
-
+          $("#save_btn").click(() => {
+            /*
+            var birthVal = $("#tempBirth").val();
+            var deathVal = $("#tempDeath").val();
+            var profAdd = $("#profDrop option:selected").text();
+            $("#tempDeath").replaceWith("<div id=\"deathVal\" style=\"display:inline\">"+deathVal+"</div>");
+            $("#tempBirth").replaceWith("<div id=\"birthVal\" style=\"display:inline;\">"+birthVal+"</div>");
+            */
+            $("#type_drop").css('visibility', 'hidden');
+            $(".type_li").addClass("no_hover");
+            $("#genre_drop").css('visibility', 'hidden');
+            $(".genre_li").addClass("no_hover");
+            });
         });
 
 
+
     </script>
+
   </body>
 
 </html>

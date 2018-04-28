@@ -17,7 +17,7 @@
               <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/about">About</a>
+              <a class="nav-link" href="https://okee0055.github.io/Assignment3/public/about.html">About</a>
             </li>
           </ul>
         </div>
@@ -74,7 +74,7 @@
                         for(var i=0;i<results.length;i++){
                             if(body.table === 'TITLES'){
                                 var row = {};
-                                row.url = '/title?tconst='+results[i].tconst;
+                                row.url = 'http://cisc-dean.stthomas.edu:8014/title?tconst='+results[i].tconst;
                                 row.col_1 = results[i].primary_title;
                                 row.col_2 = results[i].title_type;
                                 row.col_3 = results[i].start_year;
@@ -82,7 +82,7 @@
                                 $scope.rows.push(row);
                            }else{
                                 var row = {};
-                                row.url = '/name?nconst='+results[i].nconst;
+                                row.url = 'http://cisc-dean.stthomas.edu:8014/name?nconst='+results[i].nconst;
                                 row.col_1 = results[i].primary_name;
                                 row.col_2 = results[i].birth_year;
                                 row.col_3 = results[i].death_year || 'present';
