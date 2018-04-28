@@ -38,7 +38,7 @@
    </li>
  </ul>
  <button type="button" class="btn btn-outline-info" id="edit_btn" ng-click="begin_edit()">Edit</button>
- <button type="button" class="btn btn-outline-info" id="save_btn" ng-click="end_edit()" ng-click="post()">Save</button>
+ <button type="button" class="btn btn-outline-info" id="save_btn" ng-click="end_edit()">Save</button>
 </div>
 </nav>
 <div id="movie-info" style="display:inline; position:relative; display:flex; flex-direction:row;  justify-content:space-around; align-items:center; width=100%;">
@@ -84,7 +84,7 @@
   </div>
   <script>
         var app = angular.module('app', []);
-        app.controller('ctrl', function($scope){
+        app.controller('ctrl', function($scope, $http){
             rows = {rows:***ROWS***};
             for(var i=0;i<rows.rows.length;i++){
                 rows.rows[i].url = 'http://cisc-dean.stthomas.edu:8014/title?tconst='+rows.rows[i].tconst;
@@ -125,30 +125,40 @@
             }
             $scope.end_edit = function(){
                 $scope.edit = false;
+                console.log("In the post function");
+                var pathname = window.location.href;
+                var url = pathname.split("=");
+                var nconst = url[1];
+                console.log(nconst);
+                var birthVal = $("#tempBirth").val();
+                var deathVal = $("#tempDeath").val();
+               console.log("Birth val : " +birthVal);
+                //var deathVal = $("#deathVal").html();
+                if(!$.isNumeric(parseInt($("#tempDeath").val()))){
+                  var deathVal = null;
+                } else {
+                  var deathVal = $("#tempDeath").val();
+                }//else
+                var newProfs = "";
+                for(var i=0; i<$scope.cur_profs.length; i++){
+                    newProfs = newProfs + $scope.cur_profs[i] + ",";
+                }
+                var nameURL = "/nameupdate?birth="+ birthVal+"&death="+ deathVal+"&prof="+newProfs + "&nconst="+nconst;
+                console.log(nameURL);
+                $http({
+                method: 'POST',
+                url: nameURL
+                }).then(function success(response) {
+                  console.log("Success");
+                // this function will be called when the request is success
+                }, function error(response) {
+                  console.log("Error");
+                // this function will be called when the request returned error status
+                });
             }
 
             $scope.post = function() {
-              console.log("In the post function");
-              var pathname = window.location.href;
-              var url = pathname.split("=");
-              var nconst = url[1];
-              console.log(nconst);
-             var birthVal = $("#birthVal").html();
-             console.log(birthVal);
-              //var deathVal = $("#deathVal").html();
-              if(!$.isNumeric(parseInt($("#deathVal").html()))){
-                var deathVal = null;
-              } else {
-                var deathVal = parseInt($("#deathVal").html());
-              }//else
-              var newProfs = "";
-              for(var i=0; i<$scope.cur_profs.length; i++){
-                  newProfs = newProfs + $scope.cur_profs[i];
-              }
-              var nameURL = "nameupdate?birth="+ birthVal+"&death="+ deathVal+"&prof="+profAdd + "&nconst"+nconst;
-              $http.post(nameURL, data, config).then((successCallback, errorCallback) {
-                console.log("Success: " + successCallback);
-              });
+
 
             }//post
         });

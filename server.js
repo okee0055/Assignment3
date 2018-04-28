@@ -351,11 +351,21 @@ app.get('/name', (req, res)=>{
 
 
 app.post('/nameupdate', (req, res) => {
+	console.log("In POST ");
 	var req_url = url.parse(req.url);
 	var params = query.parse(req_url.query, "&");
 	console.log(params);
 	//db.run("UPDATE NAMES SET birth_year = ?, death_year = ?, primary_profession = ? WHERE nconst = ?", [params.birth, params.death, params.prof, params.nconst]);
+	var inputData = [params.birth, params.death, params.prof, params.nconst];
 
+db.run("UPDATE NAMES SET birth_year=?, death_year=?, primary_profession = ? WHERE nconst =?",inputData,function(err,rows){
+	if(err){
+		console.log(err);
+	}
+	else {
+		console.log("success");
+	}
+});
 });//app.post(nameupdate)
 
 
