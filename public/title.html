@@ -176,10 +176,12 @@
                 for(var i=0; i<$scope.cur_types.length; i++){
                     newTypes = newTypes + $scope.cur_types[i] + ",";
                 }
+                newTypes = newTypes.substring(0,newTypes.length-1);
                 var newGenres = "";
                 for(var i=0; i<$scope.cur_genres.length; i++){
                     newGenres = newTypes + $scope.cur_genres[i] + ",";
                 }
+                newGenres = newGenres.substring(0,newGenres.length-1);
                 var titleURL = "/titleupdate?type="+newTypes + "&genre="+newGenres + "&tconst="+tconst;
                 console.log(titleURL);
                 $http({
